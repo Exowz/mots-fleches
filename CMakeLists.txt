@@ -11,4 +11,5 @@ add_executable(mots_fleches
         src/tools/tools.c
         src/menu/menu.c
         src/keyboard/keyboard.c
-        src/gameplay/gameplay.h)
+        src/gameplay/gameplay.h
+        src/gameplay/gameplay.c)

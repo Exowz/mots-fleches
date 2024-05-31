@@ -73,6 +73,12 @@ build CMakeFiles/mots_fleches.dir/src/keyboard/keyboard.c.o: C_COMPILER__mots_fl
   OBJECT_DIR = CMakeFiles/mots_fleches.dir
   OBJECT_FILE_DIR = CMakeFiles/mots_fleches.dir/src/keyboard
 
+build CMakeFiles/mots_fleches.dir/src/gameplay/gameplay.c.o: C_COMPILER__mots_fleches_unscanned_Debug /Users/ewankapoor/Documents/GitHub/mots-fleches/src/gameplay/gameplay.c || cmake_object_order_depends_target_mots_fleches
+  DEP_FILE = CMakeFiles/mots_fleches.dir/src/gameplay/gameplay.c.o.d
+  FLAGS = -g -std=gnu11 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk -fcolor-diagnostics
+  OBJECT_DIR = CMakeFiles/mots_fleches.dir
+  OBJECT_FILE_DIR = CMakeFiles/mots_fleches.dir/src/gameplay
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target mots_fleches
@@ -81,7 +87,7 @@ build CMakeFiles/mots_fleches.dir/src/keyboard/keyboard.c.o: C_COMPILER__mots_fl
 #############################################
 # Link the executable mots_fleches
 
-build mots_fleches: C_EXECUTABLE_LINKER__mots_fleches_Debug CMakeFiles/mots_fleches.dir/main.c.o CMakeFiles/mots_fleches.dir/src/tools/tools.c.o CMakeFiles/mots_fleches.dir/src/menu/menu.c.o CMakeFiles/mots_fleches.dir/src/keyboard/keyboard.c.o
+build mots_fleches: C_EXECUTABLE_LINKER__mots_fleches_Debug CMakeFiles/mots_fleches.dir/main.c.o CMakeFiles/mots_fleches.dir/src/tools/tools.c.o CMakeFiles/mots_fleches.dir/src/menu/menu.c.o CMakeFiles/mots_fleches.dir/src/keyboard/keyboard.c.o CMakeFiles/mots_fleches.dir/src/gameplay/gameplay.c.o
   FLAGS = -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.5.sdk
   OBJECT_DIR = CMakeFiles/mots_fleches.dir
   POST_BUILD = :

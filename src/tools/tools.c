@@ -13,3 +13,9 @@ void clignoter_logo() {
         system("cls"); // Effacer l'écran
     }
 }
+
+void COULEUR(int couleurDuTexte,int couleurDeFond) { // Change la couleur du texte
+    HANDLE H=GetStdHandle(STD_OUTPUT_HANDLE); // On récupère le handle de la console
+    SetConsoleTextAttribute(H,couleurDeFond*16+couleurDuTexte); // On change la couleur du texte
+}
+

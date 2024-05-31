@@ -9,6 +9,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <string.h>
+#include <conio.h>
+#include <windows.h>
+
+#include "../gameplay/gameplay.h"
+#include "../keyboard/keyboard.h"
+#include "../menu/menu.h"
 
 //Couleur
 
@@ -32,5 +40,7 @@
 //Fonctions
 
 void clignoter_logo();
+void COULEUR(int couleurDuTexte,int couleurDeFond);
+
 
 #endif //MOTS_FLECHES_TOOLS_H
