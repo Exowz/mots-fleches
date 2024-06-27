@@ -1,55 +1,136 @@
 //
-// Created by Ewan Kapoor on 31/05/2024.
+// Created by Ewan on 27/06/2024.
 //
 
 #include "gameplay.h"
 
-void generer_grille(Crossword *cw) {
+int TAILLE_GRILLE = 15;
+
+void jouer_jeu(char **liste_mots, int nb_mots) {
+    char **grille = malloc(TAILLE_GRILLE * sizeof(char*));
+    for (int i = 0; i < TAILLE_GRILLE; i++) {
+        grille[i] = calloc(TAILLE_GRILLE, sizeof(char));
+    }
+
+    char **mots_a_trouver = copier_liste_mots(liste_mots, nb_mots);
+    char **mots_trouves = calloc(nb_mots, sizeof(char*));
+    int nb_trouves = 0;
+
+    generer_grille(grille, mots_a_trouver, nb_mots);
+
+    int curseur_x = 0, curseur_y = 0;
+    int selectionne[TAILLE_GRILLE_MAX][TAILLE_GRILLE_MAX] = {0};
+    int valide[TAILLE_GRILLE_MAX][TAILLE_GRILLE_MAX] = {0};
+
+    int continuer_jeu = 1;
+
+    while (continuer_jeu && mots_restants(mots_a_trouver, nb_mots)) {
+        system("cls");
+        afficher_grille(grille, curseur_x, curseur_y, selectionne, valide, mots_a_trouver, nb_mots, mots_trouves, nb_trouves);
+
+        char ch = getch();
+        switch (ch) {
+            case 72 : // haut
+                curseur_y = (curseur_y > 0) ? curseur_y - 1 : TAILLE_GRILLE - 1;
+                break;
+            case 80 : // bas
+                curseur_y = (curseur_y < TAILLE_GRILLE - 1) ? curseur_y + 1 : 0;
+                break;
+            case 75 : // gauche
+                curseur_x = (curseur_x > 0) ? curseur_x - 1 : TAILLE_GRILLE - 1;
+                break;
+            case 77 : // droite
+                curseur_x = (curseur_x < TAILLE_GRILLE - 1) ? curseur_x + 1 : 0;
+                break;
+            case ' ': // selection/deselection
+                selectionne[curseur_y][curseur_x] = !selectionne[curseur_y][curseur_x];
+                break;
+            case '\r': // entrer pour valider
+                if (valider_mot(grille, selectionne, mots_a_trouver, nb_mots, mots_trouves, &nb_trouves)) {
+                    // si le mot est valide, marquer les lettres comme validees
+                    for (int i = 0; i < TAILLE_GRILLE; i++) {
+                        for (int j = 0; j < TAILLE_GRILLE; j++) {
+                            if (selectionne[i][j]) {
+                                valide[i][j] = 1;
+                                selectionne[i][j] = 0;
+                            }
+                        }
+                    }
+                } else {
+                    // si le mot n'est pas valide, deselectionner les lettres
+                    for (int i = 0; i < TAILLE_GRILLE; i++) {
+                        for (int j = 0; j < TAILLE_GRILLE; j++) {
+                            selectionne[i][j] = 0;
+                        }
+                    }
+                }
+                break;
+            case 27 : // quitter
+                confirmer_sortie(&continuer_jeu);
+                break;
+        }
+    }
+
+    if (continuer_jeu) {
+        system("cls");
+        printf("GG le boss\n");
+    }
+
+    for (int i = 0; i < TAILLE_GRILLE; i++) {
+        free(grille[i]);
+    }
+    free(grille);
+    liberer_liste_mots(mots_a_trouver, nb_mots);
+    liberer_liste_mots(mots_trouves, nb_trouves);
+}
+
+// Fonction pour generer la grille
+void generer_grille(char **grille, char **mots, int nb_mots) {
     srand(time(NULL));
-    for (int i = 0; i < cw->nb_mots; i++) {
+    for (int i = 0; i < nb_mots; i++) {
         int place = 0;
         while (!place) {
             int direction = rand() % 4;
-            int longueur_mot = strlen(cw->mots_a_trouver[i]);
+            int longueur_mot = strlen(mots[i]);
             int ligne, col;
 
             switch (direction) {
                 case 0: // horizontal gauche a droite
-                    ligne = rand() % cw->taille;
-                    col = rand() % (cw->taille - longueur_mot);
-                    if (peut_placer_mot(cw, ligne, col, direction, cw->mots_a_trouver[i])) {
+                    ligne = rand() % TAILLE_GRILLE;
+                    col = rand() % (TAILLE_GRILLE - longueur_mot);
+                    if (peut_placer_mot(grille, ligne, col, direction, mots[i])) {
                         for (int j = 0; j < longueur_mot; j++) {
-                            cw->grille[ligne][col + j] = cw->mots_a_trouver[i][j];
+                            grille[ligne][col + j] = mots[i][j];
                         }
                         place = 1;
                     }
                     break;
                 case 1: // horizontal droite a gauche
-                    ligne = rand() % cw->taille;
-                    col = rand() % (cw->taille - longueur_mot) + longueur_mot - 1;
-                    if (peut_placer_mot(cw, ligne, col, direction, cw->mots_a_trouver[i])) {
+                    ligne = rand() % TAILLE_GRILLE;
+                    col = rand() % (TAILLE_GRILLE - longueur_mot) + longueur_mot - 1;
+                    if (peut_placer_mot(grille, ligne, col, direction, mots[i])) {
                         for (int j = 0; j < longueur_mot; j++) {
-                            cw->grille[ligne][col - j] = cw->mots_a_trouver[i][j];
+                            grille[ligne][col - j] = mots[i][j];
                         }
                         place = 1;
                     }
                     break;
                 case 2: // vertical haut en bas
-                    ligne = rand() % (cw->taille - longueur_mot);
-                    col = rand() % cw->taille;
-                    if (peut_placer_mot(cw, ligne, col, direction, cw->mots_a_trouver[i])) {
+                    ligne = rand() % (TAILLE_GRILLE - longueur_mot);
+                    col = rand() % TAILLE_GRILLE;
+                    if (peut_placer_mot(grille, ligne, col, direction, mots[i])) {
                         for (int j = 0; j < longueur_mot; j++) {
-                            cw->grille[ligne + j][col] = cw->mots_a_trouver[i][j];
+                            grille[ligne + j][col] = mots[i][j];
                         }
                         place = 1;
                     }
                     break;
                 case 3: // vertical bas en haut
-                    ligne = rand() % (cw->taille - longueur_mot) + longueur_mot - 1;
-                    col = rand() % cw->taille;
-                    if (peut_placer_mot(cw, ligne, col, direction, cw->mots_a_trouver[i])) {
+                    ligne = rand() % (TAILLE_GRILLE - longueur_mot) + longueur_mot - 1;
+                    col = rand() % TAILLE_GRILLE;
+                    if (peut_placer_mot(grille, ligne, col, direction, mots[i])) {
                         for (int j = 0; j < longueur_mot; j++) {
-                            cw->grille[ligne - j][col] = cw->mots_a_trouver[i][j];
+                            grille[ligne - j][col] = mots[i][j];
                         }
                         place = 1;
                     }
@@ -57,36 +138,37 @@ void generer_grille(Crossword *cw) {
             }
         }
     }
-    remplir_espaces_vides(cw);
+    remplir_espaces_vides(grille);
 }
 
-int peut_placer_mot(Crossword *cw, int ligne, int col, int direction, char *mot) {
+// Fonction pour verifier si un mot peut être place dans la grille
+int peut_placer_mot(char **grille, int ligne, int col, int direction, char *mot) {
     int longueur_mot = strlen(mot);
     switch (direction) {
         case 0: // horizontal gauche a droite
             for (int j = 0; j < longueur_mot; j++) {
-                if (cw->grille[ligne][col + j] != '\0' && cw->grille[ligne][col + j] != mot[j]) {
+                if (grille[ligne][col + j] != '\0' && grille[ligne][col + j] != mot[j]) {
                     return 0;
                 }
             }
             break;
         case 1: // horizontal droite a gauche
             for (int j = 0; j < longueur_mot; j++) {
-                if (cw->grille[ligne][col - j] != '\0' && cw->grille[ligne][col - j] != mot[j]) {
+                if (grille[ligne][col - j] != '\0' && grille[ligne][col - j] != mot[j]) {
                     return 0;
                 }
             }
             break;
         case 2: // vertical haut en bas
             for (int j = 0; j < longueur_mot; j++) {
-                if (cw->grille[ligne + j][col] != '\0' && cw->grille[ligne + j][col] != mot[j]) {
+                if (grille[ligne + j][col] != '\0' && grille[ligne + j][col] != mot[j]) {
                     return 0;
                 }
             }
             break;
         case 3: // vertical bas en haut
             for (int j = 0; j < longueur_mot; j++) {
-                if (cw->grille[ligne - j][col] != '\0' && cw->grille[ligne - j][col] != mot[j]) {
+                if (grille[ligne - j][col] != '\0' && grille[ligne - j][col] != mot[j]) {
                     return 0;
                 }
             }
@@ -95,48 +177,46 @@ int peut_placer_mot(Crossword *cw, int ligne, int col, int direction, char *mot)
     return 1;
 }
 
-void remplir_espaces_vides(Crossword *cw) {
-    for (int i = 0; i < cw->taille; i++) {
-        for (int j = 0; j < cw->taille; j++) {
-            if (cw->grille[i][j] == '\0') {
-                cw->grille[i][j] = generer_lettre_aleatoire();
+// Fonction pour remplir les espaces vides
+void remplir_espaces_vides(char **grille) {
+    for (int i = 0; i < TAILLE_GRILLE; i++) {
+        for (int j = 0; j < TAILLE_GRILLE; j++) {
+            if (grille[i][j] == '\0') {
+                grille[i][j] = generer_lettre_aleatoire();
             }
         }
     }
 }
 
-char generer_lettre_aleatoire() {
-    return 'A' + rand() % 26;
-}
-
-void afficher_grille(Crossword *cw, int curseur_x, int curseur_y) {
-    for (int i = 0; i < cw->taille; i++) {
-        for (int j = 0; j < cw->taille; j++) {
+// Fonction pour afficher la grille
+void afficher_grille(char **grille, int curseur_x, int curseur_y, int selectionne[TAILLE_GRILLE_MAX][TAILLE_GRILLE_MAX], int valide[TAILLE_GRILLE_MAX][TAILLE_GRILLE_MAX], char **mots_a_trouver, int nb_mots, char **mots_trouves, int nb_trouves) {
+    for (int i = 0; i < TAILLE_GRILLE; i++) {
+        for (int j = 0; j < TAILLE_GRILLE; j++) {
             positionner_curseur(j * 3, i);
             if (i == curseur_y && j == curseur_x) {
-                definir_couleur(1); // Curseur cyan
-            } else if (cw->valide[i][j]) {
-                definir_couleur(3); // Valide
-            } else if (cw->selectionne[i][j]) {
-                definir_couleur(2); // Selection
+                definir_couleur(1, i, j); // Curseur cyan
+            } else if (valide[i][j]) {
+                definir_couleur(3, i, j); // Valide
+            } else if (selectionne[i][j]) {
+                definir_couleur(2, i, j); // Selection
             } else {
-                definir_couleur(0); // Damier vert et gris
+                definir_couleur(0, i, j); // Damier vert et gris
             }
-            printf(" %c ", cw->grille[i][j]); // Ajout d'espaces pour centrer les lettres
+            printf(" %c ", grille[i][j]); // Ajout d'espaces pour centrer les lettres
             printf("\033[0m"); // Reinitialiser les couleurs apres chaque cellule
         }
         printf("\n"); // Retour a la ligne apres chaque ligne de la grille
     }
 
     // Affichage des mots a rechercher
-    int list_x = cw->taille * 3 + 5; // Position x a droite de la grille
+    int list_x = TAILLE_GRILLE * 3 + 5; // Position x a droite de la grille
     int list_y = 0; // Position y en haut de la grille
     positionner_curseur(list_x, list_y++);
     printf("| %-40s |\n", "Mots a rechercher dans la grille");
-    for (int i = 0; i < cw->nb_mots; i++) {
-        if (cw->mots_a_trouver[i] != NULL) {
+    for (int i = 0; i < nb_mots; i++) {
+        if (mots_a_trouver[i] != NULL) {
             positionner_curseur(list_x, list_y++);
-            printf("| %-40s |\n", cw->mots_a_trouver[i]);
+            printf("| %-40s |\n", mots_a_trouver[i]);
         }
     }
 
@@ -144,11 +224,153 @@ void afficher_grille(Crossword *cw, int curseur_x, int curseur_y) {
     list_y++;
     positionner_curseur(list_x, list_y++);
     printf("| %-40s |\n", "Mots trouves");
-    for (int i = 0; i < cw->nb_trouves; i++) {
+    for (int i = 0; i < nb_trouves; i++) {
         positionner_curseur(list_x, list_y++);
-        printf("| %-40s |\n", cw->mots_trouves[i]);
+        printf("| %-40s |\n", mots_trouves[i]);
     }
 }
 
-int valider_mot(Crossword *cw) {
+// Fonction pour copier la liste de mots
+char** copier_liste_mots(char **liste_mots, int nb_mots) {
+    char **copie = malloc(nb_mots * sizeof(char*));
+    for (int i = 0; i < nb_mots; i++) {
+        copie[i] = strdup(liste_mots[i]);
+    }
+    return copie;
+}
+
+// Fonction pour verifier s'il reste des mots a trouver
+int mots_restants(char **mots_a_trouver, int nb_mots) {
+    for (int i = 0; i < nb_mots; i++) {
+        if (mots_a_trouver[i] != NULL) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Fonction pour liberer la liste de mots
+void liberer_liste_mots(char **liste_mots, int nb_mots) {
+    for (int i = 0; i < nb_mots; i++) {
+        if (liste_mots[i] != NULL) {
+            free(liste_mots[i]);
+        }
+    }
+    free(liste_mots);
+}
+
+// Fonction pour generer une lettre aleatoire
+char generer_lettre_aleatoire() {
+    return 'a' + rand() % 26;
+}
+
+// Fonction pour deplacer le curseur a une position donnee
+void positionner_curseur(int x, int y) {
+    printf("\033[%d;%dH", y + 1, x + 1);
+}
+
+void definir_couleur(int couleur, int x, int y) {
+    switch (couleur) {
+        case 0: // Damier vert clair et gris clair
+            if ((x + y) % 2 == 0) {
+                printf("\033[102m\033[30m"); // fond vert clair, texte noir
+            } else {
+                printf("\033[47m\033[30m"); // fond gris clair, texte noir
+            }
+            break;
+        case 1: // Curseur cyan
+            printf("\033[46m\033[30m"); // fond cyan, texte noir
+            break;
+        case 2: // selection
+            printf("\033[40m\033[31m"); // fond noir, texte rouge
+            break;
+        case 3: // valide
+            printf("\033[42m\033[30m"); // fond vert, texte noir
+            break;
+    }
+}
+
+// Fonction pour verifier si un mot est dans la liste des mots
+int est_mot_dans_liste(char *mot, char **liste_mots, int nb_mots) {
+    for (int i = 0; i < nb_mots; i++) {
+        if (liste_mots[i] != NULL && strcmp(mot, liste_mots[i]) == 0) {
+            liste_mots[i] = NULL; // marque le mot comme trouve
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Fonction pour valider un mot selectionne
+int valider_mot(char **grille, int selectionne[TAILLE_GRILLE_MAX][TAILLE_GRILLE_MAX], char **liste_mots, int nb_mots, char **mots_trouves, int *nb_trouves) {
     char mot_selectionne[TAILLE_GRILLE_MAX] = "";
+    int index = 0;
+
+    // Construire le mot selectionne
+    for (int i = 0; i < TAILLE_GRILLE; i++) {
+        for (int j = 0; j < TAILLE_GRILLE; j++) {
+            if (selectionne[i][j]) {
+                mot_selectionne[index++] = grille[i][j];
+            }
+        }
+    }
+    mot_selectionne[index] = '\0';
+
+    // Verifier le mot dans toutes les directions
+    if (est_mot_dans_liste(mot_selectionne, liste_mots, nb_mots)) {
+        mots_trouves[*nb_trouves] = strdup(mot_selectionne);
+        (*nb_trouves)++;
+        return 1;
+    }
+
+    // Inverser le mot selectionne et verifier a nouveau
+    for (int i = 0; i < index / 2; i++) {
+        char temp = mot_selectionne[i];
+        mot_selectionne[i] = mot_selectionne[index - i - 1];
+        mot_selectionne[index - i - 1] = temp;
+    }
+
+    if (est_mot_dans_liste(mot_selectionne, liste_mots, nb_mots)) {
+        mots_trouves[*nb_trouves] = strdup(mot_selectionne);
+        (*nb_trouves)++;
+        return 1;
+    }
+
+    return 0;
+}
+
+void definir_taille_grille() {
+    printf("Entrez la taille de la grille (max %d): ", TAILLE_GRILLE_MAX);
+    scanf("%d", &TAILLE_GRILLE);
+    if (TAILLE_GRILLE > TAILLE_GRILLE_MAX) {
+        TAILLE_GRILLE = TAILLE_GRILLE_MAX;
+    } else if (TAILLE_GRILLE < 5) {
+        TAILLE_GRILLE = 5;
+    }
+    printf("Taille de la grille definie a %d\n", TAILLE_GRILLE);
+    system("pause");
+}
+
+// Fonction pour ajouter une nouvelle liste de mots
+void ajouter_liste_mots() {
+    int nb_mots;
+    printf("Combien de mots voulez-vous ajouter? ");
+    scanf("%d", &nb_mots);
+
+    char **nouvelle_liste_mots = malloc(nb_mots * sizeof(char*));
+    char mot[50];
+
+    for (int i = 0; i < nb_mots; i++) {
+        printf("Entrez le mot %d: ", i + 1);
+        scanf("%s", mot);
+        nouvelle_liste_mots[i] = strdup(mot);// copie du mot dans la nouvelle liste
+    }
+
+    jouer_jeu(nouvelle_liste_mots, nb_mots);
+
+    for (int i = 0; i < nb_mots; i++) {
+        free(nouvelle_liste_mots[i]);
+    }
+    free(nouvelle_liste_mots);
+}
+

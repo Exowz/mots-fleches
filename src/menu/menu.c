@@ -1,5 +1,5 @@
 //
-// Created by Ewan Kapoor on 28/05/2024.
+// Created by Ewan on 27/06/2024.
 //
 
 #include "menu.h"
@@ -32,6 +32,26 @@ void choisir_theme(char *theme) {
     }
 }
 
+void afficher_menu() {
+    system("cls");
+    printf("Menu Principal:\n");
+    printf("1. Choisir un theme\n");
+    printf("2. Choisir la taille de la grille\n");
+    printf("3. Ajouter une nouvelle liste de mots\n");
+    printf("4. Quitter le jeu\n");
+}
+
+int selection() {
+    char touche = _getch();
+    switch (touche) {
+        case '1': return 1;
+        case '2': return 2;
+        case '3': return 3;
+        case '4': return 4;
+        default: return -1;
+    }
+}
+
 void menu_principal() {
     int choix;
     char theme[20];
@@ -43,20 +63,12 @@ void menu_principal() {
     int sortie_jeu = 0;
 
     while (!sortie_jeu) {
-        system("cls");
-        printf("Menu Principal:\n");
-        printf("1. Choisir un theme\n");
-        printf("2. Choisir la taille de la grille\n");
-        printf("3. Ajouter une nouvelle liste de mots\n");
-        printf("4. Quitter le jeu\n");
-        printf("Entrez votre choix: ");
-        scanf("%d", &choix);
+        afficher_menu();
+        choix = selection();
 
         switch (choix) {
             case 1:
                 choisir_theme(theme);
-                Crossword cw;
-                cw.taille = TAILLE_GRILLE;
                 if (strcmp(theme, "Programmation") == 0) {
                     jouer_jeu(mots_programmation, sizeof(mots_programmation) / sizeof(mots_programmation[0]));
                 } else if (strcmp(theme, "Jeux videos") == 0) {
@@ -74,6 +86,7 @@ void menu_principal() {
                 ajouter_liste_mots();
                 break;
             case 4:
+                quitter();
                 sortie_jeu = 1;
                 break;
             default:
@@ -83,47 +96,28 @@ void menu_principal() {
     }
 }
 
-void definir_taille_grille() {
-    printf("Entrez la taille de la grille (max %d): ", TAILLE_GRILLE_MAX);
-    scanf("%d", &TAILLE_GRILLE);
-    if (TAILLE_GRILLE > TAILLE_GRILLE_MAX) {
-        TAILLE_GRILLE = TAILLE_GRILLE_MAX;
-    } else if (TAILLE_GRILLE < 5) {
-        TAILLE_GRILLE = 5;
-    }
-    printf("Taille de la grille definie a %d\n", TAILLE_GRILLE);
-    system("pause");
-}
-
-void ajouter_liste_mots() {
-    int nb_mots;
-    printf("Combien de mots voulez-vous ajouter? ");
-    scanf("%d", &nb_mots);
-
-    char **nouvelle_liste_mots = malloc(nb_mots * sizeof(char*));
-    char mot[50];
-
-    for (int i = 0; i < nb_mots; i++) {
-        printf("Entrez le mot %d: ", i + 1);
-        scanf("%s", mot);
-        nouvelle_liste_mots[i] = strdup(mot);
-    }
-
-    jouer_jeu(nouvelle_liste_mots, nb_mots);
-
-    for (int i = 0; i < nb_mots; i++) {
-        free(nouvelle_liste_mots[i]);
-    }
-    free(nouvelle_liste_mots);
-}
 
 void confirmer_sortie(int *sortie_jeu) {
     printf("\n");
-    printf("Appuyez sur 'q' pour quitter au menu principal, ou sur une autre touche pour continuer le jeu.");
+    printf("Appuyez sur 'Esc' pour quitter au menu principal, ou sur une autre touche pour continuer le jeu.");
     char ch = getch();
-    if (ch == 'q') {
+    if (ch == 27 ) {
         *sortie_jeu = 0;
     } else {
         *sortie_jeu = 1;
     }
+}
+
+void quitter() {
+    printf("Fermeture dans 5 secondes\n");
+    fflush(stdout);
+
+    for (int i = 4; i >= 0; --i) {
+        Sleep(1000);
+        printf("%d\n", i);
+        fflush(stdout);
+    }
+
+    printf("\n");
+    exit(0);
 }

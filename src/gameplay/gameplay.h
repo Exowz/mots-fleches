@@ -1,33 +1,31 @@
 //
-// Created by Ewan Kapoor on 31/05/2024.
+// Created by Ewan on 27/06/2024.
 //
 
 #ifndef GAMEPLAY_H
 #define GAMEPLAY_H
 
-#define TAILLE_GRILLE_MAX 20
+//Bibliothèques
 
 #include "../tools/tools.h"
 
-typedef struct {
-    char **grille;
-    int taille;
-    char **mots_a_trouver;
-    int nb_mots;
-    char **mots_trouves;
-    int nb_trouves;
-    int selectionne[TAILLE_GRILLE_MAX][TAILLE_GRILLE_MAX];
-    int valide[TAILLE_GRILLE_MAX][TAILLE_GRILLE_MAX];
-} Crossword;
+//Définitions
 
-void generer_grille(Crossword *cw);
-void remplir_espaces_vides(Crossword *cw);
-void afficher_grille(Crossword *cw, int curseur_x, int curseur_y);
-int valider_mot(Crossword *cw, int *curseur_x, int *curseur_y);
-int peut_placer_mot(Crossword *cw, int ligne, int col, int direction, char *mot);
-int mots_restants(Crossword *cw);
-void liberer_mots(Crossword *cw);
+#define TAILLE_GRILLE_MAX 20
+
+//Fonctions
+
+void jouer_jeu(char **liste_mots, int nb_mots);
+void generer_grille(char **grille, char **mots, int nb_mots);
+void remplir_espaces_vides(char **grille);
+void afficher_grille(char **grille, int curseur_x, int curseur_y, int selectionne[TAILLE_GRILLE_MAX][TAILLE_GRILLE_MAX], int valide[TAILLE_GRILLE_MAX][TAILLE_GRILLE_MAX], char **mots_a_trouver, int nb_mots, char **mots_trouves, int nb_trouves);
+char** copier_liste_mots(char **liste_mots, int nb_mots);
+int mots_restants(char **mots_a_trouver, int nb_mots);
+void liberer_liste_mots(char **liste_mots, int nb_mots);
 char generer_lettre_aleatoire();
+int valider_mot(char **grille, int selectionne[TAILLE_GRILLE_MAX][TAILLE_GRILLE_MAX], char **liste_mots, int nb_mots, char **mots_trouves, int *nb_trouves);
+int est_mot_dans_liste(char *mot, char **liste_mots, int nb_mots);
+int peut_placer_mot(char **grille, int ligne, int col, int direction, char *mot);
 
 
-#endif //MOTS_FLECHES_GAMEPLAY_H
+#endif //GAMEPLAY_H

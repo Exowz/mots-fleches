@@ -1,17 +1,21 @@
 //
-// Created by Ewan Kapoor on 28/05/2024.
+// Created by Ewan on 27/06/2024.
 //
 
-#ifndef MOTS_FLECHES_MENU_H
-#define MOTS_FLECHES_MENU_H
+#ifndef MENU_H
+#define MENU_H
 
-#include "../gameplay/gameplay.h"
+//Bibliothèques
+
 #include "../tools/tools.h"
 
-void menu_principal();
-void definir_taille_grille();
-void choisir_theme(char *theme);
-void ajouter_liste_mots();
-void confirmer_sortie(int *sortie_jeu);
+//Fonctions
 
-#endif //MOTS_FLECHES_MENU_H
+void choisir_theme(char *theme);
+void menu_principal();
+void confirmer_sortie(int *sortie_jeu);
+void afficher_menu();
+int selection();
+void quitter();
+
+#endif //MENU_H
