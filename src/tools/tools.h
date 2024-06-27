@@ -15,7 +15,6 @@
 #include <windows.h>
 
 #include "../gameplay/gameplay.h"
-#include "../keyboard/keyboard.h"
 #include "../menu/menu.h"
 
 //Couleur
