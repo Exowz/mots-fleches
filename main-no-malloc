@@ -141,8 +141,15 @@ void jouer_jeu(char liste_mots[][TAILLE_GRILLE_MAX], int nb_mots) {
 
     if (continuer_jeu) {
         system("cls");
-        printf("GG le boss\n");
+        printf("GG ! Vous avez trouve tous les mots YIPEEEE!\n");
+        printf("\n");
+        printf("Appuyez sur une touche pour retourner au menu principal...\n");
+        getch();
     }
+
+    menu_principal();
+
+    return 0;
 }
 
 // Fonction pour generer la grille
