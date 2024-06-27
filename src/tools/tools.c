@@ -19,3 +19,27 @@ void COULEUR(int couleurDuTexte,int couleurDeFond) { // Change la couleur du tex
     SetConsoleTextAttribute(H,couleurDeFond*16+couleurDuTexte); // On change la couleur du texte
 }
 
+void setColor(int color) {
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE));
+}
+
+void definir_couleur(int couleur) {
+    switch (couleur) {
+        case 0: // Damier vert clair et gris clair
+            printf("\033[102m\033[30m");
+            break;
+        case 1: // Curseur cyan
+            printf("\033[46m\033[30m");
+            break;
+        case 2: // Sélection
+            printf("\033[40m\033[31m");
+            break;
+        case 3: // Validé
+            printf("\033[42m\033[30m");
+            break;
+    }
+}
+
+void positionner_curseur(int x, int y) {
+    printf("\033[%d;%dH", y + 1, x + 1);
+}

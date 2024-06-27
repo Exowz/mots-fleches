@@ -39,8 +39,10 @@
 
 //Fonctions
 
-void clignoter_logo();
-void COULEUR(int couleurDuTexte,int couleurDeFond);
-
+void setColor(int color);
+COORD getCursorPosition();
+void setCursorPosition(int x, int y);
+void definir_couleur(int couleur);
+void positionner_curseur(int x, int y);
 
 #endif //MOTS_FLECHES_TOOLS_H
